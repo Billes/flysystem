@@ -401,13 +401,25 @@ abstract class AbstractFtpAdapter extends AbstractAdapter
      */
     protected function normalizeUnixObject($item, $base)
     {
-        $item = preg_replace('#\s+#', ' ', trim($item), 7);
-
-        if (count(explode(' ', $item, 9)) !== 9) {
+        $item = preg_replace('#\s+#', ' ', trim($item), 7);                                     
+        $meta_data = explode(' ', $item, 9);     
+                                                 
+        if (count($meta_data) == 8) {                                                                                                                
+            $permissions = $meta_data[0];                                                                                                         
+            $size = $meta_data[3];                                                                                                               
+            $name = $meta_data[7];                                                                                      
+        } elseif (count($meta_data) == 7) {                                                                                  
+            $permissions = $meta_data[0];  
+            $size = $meta_data[2];                                  
+            $name = $meta_data[6];                                  
+        } elseif (count($meta_data) == 9) {
+            $permissions = $meta_data[0];  
+            $size = $meta_data[4];                                  
+            $name = $meta_data[8];
+        } else {
             throw new RuntimeException("Metadata can't be parsed from item '$item' , not enough parts.");
         }
-
-        list($permissions, /* $number */, /* $owner */, /* $group */, $size, /* $month */, /* $day */, /* $time*/, $name) = explode(' ', $item, 9);
+        
         $type = $this->detectType($permissions);
         $path = empty($base) ? $name : $base . $this->separator . $name;
 
